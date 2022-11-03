@@ -1,0 +1,148 @@
+def solution1(code):
+    def div_and_conq(list, template, ele_to_remove):
+        ##print(f'temp length inside recursion={len(list)}')
+        print(f'list inside recursion={list}')
+        template.sort()
+        #print(f'final inside recursion ={template}')
+        slice_1 = list[:1]
+        slice_2 = list[1:]
+
+        print(f"ele_rem ={ele_to_remove}")
+        ele_to_remove.extend(slice_1)
+        print(f'after adding {slice_1}ele_rem={ele_to_remove}')
+
+        #print(f'sliced off in recursion silice1= {slice_1}')
+        #print(f'Other slice in recursion slice2={slice_2}')
+        if len(slice_2)==1:
+            if slice_2[0]%slice_1[0]==0:
+                c=[(slice_1[0],slice_2[0])]
+                print(f'returning 1 {c}')
+                return c
+
+            else:
+                return []
+
+
+        temp = []
+        for x in slice_2:
+            #print(f'checking if {slice_1[0]} can divide {x} or not')
+            if x % slice_1[0] == 0:
+                temp.append(x)
+        #print(f'temp inside recursion={temp}')
+
+
+        if len(temp) == 0:
+            return []
+        if len(temp) == 1:
+            c = [(slice_1[0],slice_2[0])]
+            print(f'returning c as temp lenght == 1 {c}')
+            return c
+        if len(temp) == 2:
+            #ele_to_remove.append(temp[0])
+            #print(f"added {temp[0]} to as temp length is 2: ele_rem ={ele_to_remove}")
+            c = []
+            for b in temp:
+                ##print(b)
+                ##print(temp)
+                #print('making duplets inside recursion')
+                if b % slice_1[0] == 0:
+                    ##print(f'{b} % {slice_1[0]}')
+                    c.extend([(slice_1[0], b)])
+            c.extend((div_and_conq(temp, template, ele_to_remove)))
+            print(f'returning c as temp lenght == 2 {c}')
+            return c
+
+
+
+        ##print(f'making duplets of {slice_1[0]} and temp= {temp}')
+        c = []
+        for b in temp:
+            ###print('making duplets inside recursion')
+            if b % slice_1[0] == 0:
+                ###print(f'{b}%{slice_1[0]}')
+                c.extend([(slice_1[0], b)])
+
+
+        ###print(f'duplets={c}')
+        ###print('entering deeper recursion')
+        c.extend((div_and_conq(temp, template, ele_to_remove)))
+        print(f'returning c as no condition applied  {c}')
+        return c
+
+    final = []
+    ##print('started')
+    while code[0] * 2 <= code[-1]:
+        ##print(f'code= {code}')
+        ##print(f'twice of first {code[0]} element is small than last {code[-1]}')
+        slice_1 = code[:1]
+        slice_2 = code[1:]
+        ##print(f'sliced off {slice_1}')
+        ##print(f'Other slice {slice_2}')
+
+
+        temp = []
+        for x in slice_2:
+            ##print(f'checking if {slice_1[0]} can divide {x} or not')
+            if x % slice_1[0] == 0:
+                temp.append(x)
+        print(f'temp freshly created={temp}')
+        ##print('entering loop of temp')
+
+        while True:  # recursion loop
+            ##print('Looping')
+            ##print(f'temp={temp}')
+            ##print(f'y = {temp[0]}')
+            ##print((f'len temp ={len(temp)}'))
+
+            if len(temp) == 2:
+                ##print('checking if mergable or not')
+                if temp[1] % temp[0] == 0:
+                    ##print('merging becuase temp is now 2')
+                    ##print(f'temp[0]={temp[0]} and temp[1]={temp[1]}')
+                    b = (slice_1[0], temp[0], temp[1])
+                    final.append(b)
+                break
+
+            if len(temp) > 2:
+                ele_rem = []
+                a = div_and_conq(temp, final, ele_rem)
+                print('Exited from recursion')  ###################
+                print(f'ele_rem={ele_rem}')
+                ###print(f'removed {ele_rem[0]} from ele_rem')
+                #ele_rem.remove(ele_rem[0])
+                ###print(f'temp = {temp}')
+                ###print(f'removed {temp[0]} temp')
+                #.remove(temp[0])
+
+                for i in ele_rem:
+                    try:
+                        temp.remove(i)
+                    except ValueError:
+                        pass
+                ###print(temp)
+
+
+                #####print(f'temp right after recursion = {temp}')
+                #######print(f'a={a}')
+                a = sorted(a)
+                #######print(len(temp))
+                #######print(f'making final elements with {slice_1[0]} and {a}')
+                for x in a:
+                    c = list(x)
+                    b = (slice_1[0], c[0], c[1])
+                    final.append(b)
+                ###print(f'final={final}')
+
+            if len(temp) < 2:
+                ########print('breaking loop as temp len is less than 2')
+                break
+            # else:
+
+        ###print(f'final= {final}')
+        ###print(f'removed {code[0]} from code')
+        code.remove(code[0])
+    # final=set(final)
+    n = len(final)
+    final.sort()
+    ##print(final)
+    return n
