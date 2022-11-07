@@ -9,7 +9,7 @@ def solution(s):
         return c
 
     def transpose_mat(a):
-        t = create_matrix(len(a[0]),len(a))
+        t = create_matrix(len(a[0]), len(a))
         for i in range(len(a)):
             for j in range(len(a[0])):
                 t[j][i] = a[i][j]
@@ -24,7 +24,7 @@ def solution(s):
 
     def matrix_multipy(q, b):
         result = []
-        print(len(q))
+        ###print(len(q))
         for i in range(len(q)):
             row = []
             for j in range(len(b[0])):
@@ -64,7 +64,7 @@ def solution(s):
         determinant = det_matrix(m)
         # special case for 2x2 matrix:
         if len(m) == 2:
-            print('hi')
+            ###print('hi')
             return [[m[1][1] / determinant, -1 * m[0][1] / determinant],
                     [-1 * m[1][0] / determinant, m[0][0] / determinant]]
         # find matrix of cofactors
@@ -76,41 +76,44 @@ def solution(s):
                 cofactorRow.append(((-1) ** (r + c)) * det_matrix(minor))
             cofactors.append(cofactorRow)
         cofactors = transpose_mat(cofactors)
-        print(cofactors)
+        ###print(cofactors)
         for r in range(len(cofactors)):
             for c in range(len(cofactors)):
                 cofactors[r][c] = cofactors[r][c] / determinant
         return cofactors
 
     def get_Q(markov_chain):
+        #print(absorbing_points)
+        #if (len(markov_chain)-1)
         for i in absorbing_points:
+            #print(markov_chain)
+            #print(i)
             del markov_chain[i]
             for j in markov_chain:
                 del j[i]
         return markov_chain
 
-
     def get_R(markov_chain):
-        blank = create_matrix(len(q),len(absorbing_points))
-        ele=[]
-        for i in range(0,len(markov_chain)):
-            for j in range(0,len(markov_chain)):
+        blank = create_matrix(len(q), len(absorbing_points))
+        ele = []
+        for i in range(0, len(markov_chain)):
+            for j in range(0, len(markov_chain)):
                 if i not in absorbing_points and j in absorbing_points:
                     ele.append(markov_chain[i][j])
-        t=0
-        for j in range(0,len(blank)):
-            for k in range(0,len(blank[0])):
+        t = 0
+        for j in range(0, len(blank)):
+            for k in range(0, len(blank[0])):
                 blank[j][k] = ele[t]
-                t+=1
+                t += 1
         return blank
 
-    ####################### defining class ###########################
     class state:
         def __init__(self, matrix, row, colum):
             self.matrix = matrix
             self.total_proable_change = sum(matrix[row])
 
             sum_column = 0
+
             for x in range(0, len(matrix)):
                 sum_column = sum_column + matrix[x][colum]
             self.inventory = sum_column
@@ -136,8 +139,6 @@ def solution(s):
 
     ############################### main program ################################################
 
-
-
     S = [state(s, i, i) for i in range(0, len(s))]
     points = []
 
@@ -154,23 +155,24 @@ def solution(s):
             conv_prob_matrix2[i] = S[i].to_s[:]
 
     absorbing_points = []
-    for x in conv_prob_matrix:
-        if 1 in x:
-            a=x.index(1)
-            absorbing_points.append(a)
+    for i in range(0,len(conv_prob_matrix)):
+        #print(f'i = {i}')
+        #print(conv_prob_matrix[i][i])
+        if 1 == conv_prob_matrix[i][i]:
+            absorbing_points.append(i)
     absorbing_points.sort(reverse=True)
 
-    anti_absorbe=[]
-    for i in range(0,len(conv_prob_matrix)):
+    if len(s) < 4:
+        absorbing_points = set(absorbing_points)
+    anti_absorbe = []
+    for i in range(0, len(conv_prob_matrix)):
         if i not in absorbing_points:
             anti_absorbe.append(i)
     anti_absorbe.sort(reverse=True)
 
+    ####print(absorbing_points)
 
-    #print(absorbing_points)
-
-
-    #print(conv_prob_matrix)
+    ####print(conv_prob_matrix)
 
     if len(s) < 3:
         return [1, 1]
@@ -180,27 +182,20 @@ def solution(s):
             count_terminal_state += 1
             points.append(x)
 
-
     q = get_Q(conv_prob_matrix2)
-    print(f'q = {q}')
+    ###print(f'q = {q}')
 
     r = get_R(conv_prob_matrix)
 
-
-
-
-
-
     id_mat = identity_matrix(len(q))
-    print(id_mat)
-    print(q)
+    ###print(id_mat)
+    ###print(q)
     N = matrix_inverse(matrix_subtract(id_mat, q))
 
-    print(N)
-    print(r)
+    ###print(N)
+    ###print(r)
     probablity_matrix = matrix_multipy(N, r)
-    print(probablity_matrix)
-
+    #print(probablity_matrix)
 
     dom = []
 
@@ -214,6 +209,16 @@ def solution(s):
     return result
 
 
-s = [[0, 0, 2, 1, 0, 0], [1, 0, 0, 0, 1, 1], [0, 0, 3, 0, 0, 0], [0, 0, 0, 2, 0, 0], [4, 0, 0, 1, 0, 0], [1, 0, 4, 0, 0, 0]]
+s = [[0,1, 3, 2, 1, 3, 0,0, 0, 0],
+       [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+       [0, 2, 0, 0, 0, 0, 3, 0, 0, 0],
+       [0, 0, 4, 0, 5, 0, 0, 7, 0, 0],
+       [0, 0, 0, 2, 0, 3, 0, 0, 3, 2],
+       [1, 4, 0, 0, 0, 0, 0, 0, 0, 0],
+       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+       [0, 0, 0, 0, 0, 0, 0, 0, 0, 4],
+       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+]
 
-print(solution(s))
+#print(solution(s))
