@@ -1,6 +1,6 @@
 def solution(s):
     from fractions import Fraction
-    from math import gcd
+    from fractions import gcd
     def transpose_mat(a):
         t = create_matrix(len(a[0]), len(a))
         for i in range(len(a)):
@@ -42,24 +42,44 @@ def solution(s):
         return I
 
     def minor_mat(m, i, j):
+        # # print(f'inside minor mat')
+        # # print(f'isde= {[row[:j] + row[j + 1:] for row in (m[:i] + m[i + 1:])]} ')
+        # # print(f'isde= {[row[:j] + row[j + 1:] for row in (m[:i] + m[i + 1:])]} ')
+        # # print(m)
+        # # print(f'going out')
         return [row[:j] + row[j + 1:] for row in (m[:i] + m[i + 1:])]
 
     def det_matrix(m):
         if len(m) == 2:
+            # # print(f'{m[0][0]} + {m[1][1]} - {m[0][1]} * {m[1][0]}')
+            # # print(f'returning {m[0][0] * m[1][1] - m[0][1] * m[1][0]}')
+
             return m[0][0] * m[1][1] - m[0][1] * m[1][0]
         determinant = 0
+        # # print('********************************')
         for c in range(len(m)):
+            # # print(f'm = {m}')
+            # # print(f'{determinant} * (-1) ** {c} * {m[0][c]}')
+            # # print(f'before  calc {determinant}')
+            # # print(f'det {det_matrix(minor_mat(m, 0, c))}')
             b = minor_mat(m, 0, c)
+            # # print(f'b = {b}')
             d = det_matrix(b)
+            # # print(f'd = {d}')
+            # # print(f'd2= {((-1) ** c) * m[0][c]}')
             determinant = determinant + ((-1) ** c) * m[0][c] * d
+            # # print(f'd3={determinant}')
+        # # print('returning')
         return determinant
 
     def matrix_inverse(m):
         determinant = det_matrix(m)
+        # # print(f'Fractioned determinent = {determinant}')
+        # # print(m)
         if len(m) == 2:
             return [[m[1][1] / determinant, -1 * m[0][1] / determinant],
                     [-1 * m[1][0] / determinant, m[0][0] / determinant]]
-
+        # # print(determinant)
         cofactors = []
         for r in range(len(m)):
             cofactorRow = []
@@ -70,7 +90,7 @@ def solution(s):
         cofactors = transpose_mat(cofactors)
         for r in range(len(cofactors)):
             for c in range(len(cofactors)):
-
+                # print(cofactors[r][c])
                 cofactors[r][c] = cofactors[r][c] / determinant
 
         return cofactors
@@ -119,6 +139,7 @@ def solution(s):
             s = [0] * len(matrix[0])
             for x in range(0, len(matrix[row])):
                 if sum(matrix[row]) != 0:
+                    # # print(matrix[row][x],sum(matrix[row]))
                     g1 = Fraction(matrix[row][x])
                     g2 = Fraction(sum(matrix[row]))
                     s[x] = Fraction(g1 / g2)
@@ -150,10 +171,10 @@ def solution(s):
     if terminal_state_amount == 1:
         return [1, 1]
 
-    special_case = []
+    special_case=[]
     if S[0].terminal == True:
         special_case.append(0)
-        for i in range(0, terminal_state_amount - 1):
+        for i in range(0,terminal_state_amount-1):
             special_case.append(0)
         special_case.append(1)
         return special_case
@@ -182,9 +203,10 @@ def solution(s):
     id_mat = identity_matrix(len(q))
     N = matrix_inverse(matrix_subtract(id_mat, q))
     probablity_matrix = matrix_multipy(N, r)
+    #print(probablity_matrix)
 
-    for i in range(0, len(probablity_matrix[0])):
-        probablity_matrix[0][i] = (probablity_matrix[0][i]).limit_denominator()
+    for i in range(0,len(probablity_matrix[0])):
+        probablity_matrix[0][i]= (probablity_matrix[0][i]).limit_denominator()
     dom = []
 
     for x in probablity_matrix[0]:
