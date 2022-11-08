@@ -1,14 +1,8 @@
 def solution(s):
     from fractions import Fraction
-    ####################### defining functions ###########################
-    def matrix_add(a, b):
-        c = a[:][:]
-        for i in range(len(a)):
-            for j in range(len(a[0])):
-                c[i][j] = a[i][j] + b[i][j]
-        return c
 
     def transpose_mat(a):
+        ###print(a)
         t = create_matrix(len(a[0]), len(a))
         for i in range(len(a)):
             for j in range(len(a[0])):
@@ -24,7 +18,6 @@ def solution(s):
 
     def matrix_multipy(q, b):
         result = []
-        ###print(len(q))
         for i in range(len(q)):
             row = []
             for j in range(len(b[0])):
@@ -62,12 +55,9 @@ def solution(s):
 
     def matrix_inverse(m):
         determinant = det_matrix(m)
-        # special case for 2x2 matrix:
         if len(m) == 2:
-            ###print('hi')
             return [[m[1][1] / determinant, -1 * m[0][1] / determinant],
                     [-1 * m[1][0] / determinant, m[0][0] / determinant]]
-        # find matrix of cofactors
         cofactors = []
         for r in range(len(m)):
             cofactorRow = []
@@ -76,22 +66,26 @@ def solution(s):
                 cofactorRow.append(((-1) ** (r + c)) * det_matrix(minor))
             cofactors.append(cofactorRow)
         cofactors = transpose_mat(cofactors)
-        ###print(cofactors)
         for r in range(len(cofactors)):
             for c in range(len(cofactors)):
                 cofactors[r][c] = cofactors[r][c] / determinant
         return cofactors
 
     def get_Q(markov_chain):
-        #print(absorbing_points)
-        #if (len(markov_chain)-1)
-        for i in absorbing_points:
-            #print(markov_chain)
-            #print(i)
-            del markov_chain[i]
-            for j in markov_chain:
-                del j[i]
-        return markov_chain
+        blank = create_matrix((len(s) - len(absorbing_points)), (len(s) - len(absorbing_points)))
+        ele = []
+        for i in range(0, len(markov_chain)):
+            for j in range(0, len(markov_chain)):
+                if i in absorbing_points or j in absorbing_points:
+                    continue
+                else:
+                    ele.append(markov_chain[i][j])
+        t = 0
+        for j in range(0, len(blank)):
+            for k in range(0, len(blank[0])):
+                blank[j][k] = ele[t]
+                t += 1
+        return blank
 
     def get_R(markov_chain):
         blank = create_matrix(len(q), len(absorbing_points))
@@ -124,6 +118,7 @@ def solution(s):
                     s[x] = Fraction(matrix[row][x], sum(matrix[row]))
             self.to_s = s
             route_to = []
+
             for x in s:
                 if x == 0:
                     route_to.append(False)
@@ -137,12 +132,16 @@ def solution(s):
                 terminal = True
             self.terminal = terminal
 
-    ############################### main program ################################################
-
+    if len(s) == 1:
+        return [1, 1]
     S = [state(s, i, i) for i in range(0, len(s))]
     points = []
 
-    count_terminal_state = 0
+    terminal_state_amount = 0
+    for x in S:
+        if x.total_proable_change == 0:
+            terminal_state_amount += 1
+
     conv_prob_matrix = create_matrix(len(s), len(s))
     conv_prob_matrix2 = create_matrix(len(s), len(s))
     for i in range(0, len(s)):
@@ -155,9 +154,7 @@ def solution(s):
             conv_prob_matrix2[i] = S[i].to_s[:]
 
     absorbing_points = []
-    for i in range(0,len(conv_prob_matrix)):
-        #print(f'i = {i}')
-        #print(conv_prob_matrix[i][i])
+    for i in range(0, len(conv_prob_matrix)):
         if 1 == conv_prob_matrix[i][i]:
             absorbing_points.append(i)
     absorbing_points.sort(reverse=True)
@@ -169,36 +166,19 @@ def solution(s):
         if i not in absorbing_points:
             anti_absorbe.append(i)
     anti_absorbe.sort(reverse=True)
-
-    ####print(absorbing_points)
-
-    ####print(conv_prob_matrix)
-
-    if len(s) < 3:
-        return [1, 1]
-
+    count_terminal_state = 0
     for x in range(0, len(s)):
         if S[x].terminal == True:
             count_terminal_state += 1
             points.append(x)
 
     q = get_Q(conv_prob_matrix2)
-    ###print(f'q = {q}')
-
     r = get_R(conv_prob_matrix)
-
     id_mat = identity_matrix(len(q))
-    ###print(id_mat)
-    ###print(q)
     N = matrix_inverse(matrix_subtract(id_mat, q))
-
-    ###print(N)
-    ###print(r)
     probablity_matrix = matrix_multipy(N, r)
-    #print(probablity_matrix)
 
     dom = []
-
     for x in probablity_matrix[0]:
         dom.append(x.denominator)
     max_dom = max(dom)
@@ -207,18 +187,3 @@ def solution(s):
         result.append(int(x * max_dom))
     result.append(max_dom)
     return result
-
-
-s = [[0,1, 3, 2, 1, 3, 0,0, 0, 0],
-       [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-       [0, 2, 0, 0, 0, 0, 3, 0, 0, 0],
-       [0, 0, 4, 0, 5, 0, 0, 7, 0, 0],
-       [0, 0, 0, 2, 0, 3, 0, 0, 3, 2],
-       [1, 4, 0, 0, 0, 0, 0, 0, 0, 0],
-       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-       [0, 0, 0, 0, 0, 0, 0, 0, 0, 4],
-       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-]
-
-#print(solution(s))
